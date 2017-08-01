@@ -4,7 +4,7 @@
 #include "image.h"
 #include "palette.h"
 
-uint8_t palette[256][3]={
+static uint8_t palette[256][3]={
 {0,0,0},//0
 {0,0,0},
 {0,0,0},

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <math.h>
 
-color_t palette[255]={
+static color_t palette[255]={
 {0,0,0,0},
 {0,0,0,0},
 {0,0,0,0},
