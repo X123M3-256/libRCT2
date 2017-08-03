@@ -5,21 +5,62 @@
 
 enum //Ride flags
 {
-RIDE_WET=0x00000100u,
-RIDE_COVERED=0x00000400u,
-RIDE_SLOW_IN_WATER=0x00000200u,
-RIDE_SEPERATE=0x00001000u,
-RIDE_ENABLE_OR_ELSE=0x00002000u //Not setting this prevents track designs from showing in the window
+VEHICLE_TAB_SCALE_HALF=             0x00000001u,
+NO_INVERSIONS=                      0x00000002u,
+NO_BANKED_TRACK=                    0x00000004u,
+PLAY_DEPART_SOUND=                  0x00000008u,// Steam locomotive chuffing
+ALTERNATIVE_SWING_MODE_1=           0x00000010u,// Twist type rotation ride
+ALTERNATIVE_ROTATION_MODE_1=        0x00000020u,// Lifting arm rotation ride (enterprise)
+ALTERNATIVE_ROTATION_MODE_2=        0x00000040u,
+FLAG_7=                             0x00000080u,
+PLAY_SPLASH_SOUND=                  0x00000100u,
+PLAY_SPLASH_SOUND_SLIDE=            0x00000200u,
+COVERED_RIDE=                       0x00000400u,
+LIMIT_AIRTIME_BONUS=                0x00000800u,
+SEPARATE_RIDE_NAME=                 0x00001000u,
+SEPARATE_RIDE=                      0x00002000u, //Not setting this prevents track designs from showing in the window
+CANNOT_BREAK_DOWN=                  0x00004000u,
+DISABLE_LAST_OPERATING_MODE=        0x00008000u,
+FLAG_16=                            0x00010000u,
+DISABLE_FIRST_TWO_OPERATING_MODES=  0x00020000u,
+FLAG_18=                            0x00040000u,
+FLAG_DISABLE_COLOUR_TAB=            0x00080000u,// Must be set with swing mode 1 as well.
+ALTERNATIVE_SWING_MODE_2=           0x00100000u
 }ride_flags_t;
 enum //Vehicle flags
 {
-CAR_ENABLE_REMAP2=0x00010000u,
-CAR_ENABLE_REMAP3=0x00000200u,
-CAR_IS_SWINGING=0x00020000u,
-CAR_IS_SPINNING=0x00040000u,
-CAR_IS_POWERED=0x00080000u,
-CAR_NO_UPSTOPS=0x00000004u,
-CAR_ENABLE_ROLLING_SOUND=0x00100000u
+FLAG_A_0=                           0x00000001u,
+NO_UPSTOP_WHEELS=                   0x00000002u,
+NO_UPSTOP_BOBSLEIGH=                0x00000004u,
+MINI_GOLF=                          0x00000008u,
+FLAG_A_4=                           0x00000010u,
+FLAG_A_5=                           0x00000020u,
+FLAG_A_6=                           0x00000040u,
+FLAG_A_7=                           0x00000080u,
+ALLOW_DOORS_DEPRECATED=             0x00000100u,
+ENABLE_ADDITIONAL_COLOUR_2=         0x00000200u,
+FLAG_A_10=                          0x00000400u,
+FLAG_A_11=                          0x00000800u,
+FLAG_A_12=                          0x00001000u,
+FLAG_A_13=                          0x00002000u,
+FLAG_A_14=                          0x00004000u,
+FLAG_A_15=                          0x00008000u,
+ENABLE_ADDITIONAL_COLOR_1=          0x00010000u,
+CAR_IS_SWINGING=                    0x00020000u,
+CAR_IS_SPINNING=                    0x00040000u,
+CAR_IS_POWERED=                     0x00080000u,
+CAR_ENABLE_ROLLING_SOUND=           0x00100000u,
+FLAG_B_5=                           0x00200000u,
+FLAG_B_6=                           0x00400000u,
+CAR_IS_ANIMATED=                    0x00800000u,
+FLAG_B_8=                           0x01000000u,
+FLAG_B_9=                           0x02000000u,
+FLAG_B_10=                          0x04000000u,
+FLAG_B_11=                          0x08000000u,
+FLAG_B_12=                          0x10000000u,
+FLAG_B_13=                          0x20000000u,
+FLAG_B_14=                          0x40000000u,
+FLAG_B_15=                          0x80000000u
 }vehicle_flags_t;
 enum //Sprite flags
 {
@@ -39,6 +80,19 @@ SPRITE_CORKSCREW=0x1000,
 SPRITE_RESTRAINT_ANIMATION=0x2000,
 SPRITE_SPIRAL_LIFT=0x4000
 }sprite_flags_t;
+enum //Vehicle animation types
+{
+ANIMATION_TYPE_NONE=0,
+ANIMATION_TYPE_STEAM=1,
+ANIMATION_TYPE_2=2,
+ANIMATION_TYPE_3=3,
+ANIMATION_TYPE_4=4,
+ANIMATION_TYPE_5=5,
+ANIMATION_TYPE_OBS_TOWER=6,
+ANIMATION_TYPE_7=7,
+ANIMATION_TYPE_8=8,
+ANIMATION_TYPE_MULTIDIMENSION=9
+}animation_types_t;
 enum //Ride primary sounds
 {
 RUNNING_SOUND_WOODEN_OLD=1,
@@ -73,7 +127,8 @@ CATEGORY_TRANSPORT_RIDE=0,
 CATEGORY_GENTLE_RIDE=1,
 CATEGORY_ROLLERCOASTER=2,
 CATEGORY_THRILL_RIDE=3,
-CATEGORY_WATER_RIDE=4
+CATEGORY_WATER_RIDE=4,
+CATEGORY_SHOP=5
 }category_t;
 
 
@@ -142,30 +197,30 @@ uint8_t colors[3];
 
 typedef struct //Vehicle struct
 {
-uint16_t rotation_frame_mask;		// 0x00 , 0x1A
-uint32_t spacing;					// 0x04 , 0x1E
-uint16_t friction;			    // 0x08 , 0x22
-int8_t tab_height;				// 0x0A , 0x24
-uint8_t num_seats;				// 0x0B , 0x25
-uint16_t sprites;			// 0x0C , 0x26
-uint8_t sprite_width;				// 0x0E  //THESE ARE THE PROBLEM
-uint8_t sprite_height_negative;	// 0x0F      //BYTES DO NOT WRITE
-uint8_t sprite_height_positive;	// 0x10      //FOR TRACKED RIDES
-uint8_t var_11;					// 0x11 , 0x2B
-uint32_t flags;				// 0x12 , 0x2C
-uint8_t num_rows;			// 0x54
-uint8_t spin_inertia;			// 0x55
-uint8_t spin_friction;		// 0x56
-uint8_t running_sound;		// 0x57
-uint8_t var_58;					// 0x58
-uint8_t secondary_sound;				// 0x59
-uint8_t var_5A;					// 0x5A
-uint8_t powered_acceleration;		// 0x5B
-uint8_t powered_max_speed;		// 0x5C
-uint8_t car_visual;				// 0x5D
-uint8_t effect_visual;            // 0x5E
-uint8_t z_value;               // 0x5F
-uint8_t special_frames;			// 0x60
+uint16_t rotation_frame_mask;       // 0x00 , 0x1A
+uint32_t spacing;                   // 0x04 , 0x1E
+uint16_t friction;                  // 0x08 , 0x22
+int8_t tab_height;                  // 0x0A , 0x24
+uint8_t num_seats;                  // 0x0B , 0x25
+uint16_t sprites;                   // 0x0C , 0x26
+uint8_t sprite_width;               // 0x0E      //THESE ARE THE PROBLEM
+uint8_t sprite_height_negative;     // 0x0F      //BYTES DO NOT WRITE
+uint8_t sprite_height_positive;     // 0x10      //FOR TRACKED RIDES
+uint8_t vehicle_animation;          // 0x11 , 0x2B
+uint32_t flags;                     // 0x12 , 0x2C
+uint8_t num_rows;                   // 0x54
+uint8_t spin_inertia;               // 0x55
+uint8_t spin_friction;              // 0x56
+uint8_t running_sound;              // 0x57
+uint8_t var_58;                     // 0x58
+uint8_t secondary_sound;            // 0x59
+uint8_t var_5A;                     // 0x5A
+uint8_t powered_acceleration;       // 0x5B
+uint8_t powered_max_speed;          // 0x5C
+uint8_t car_visual;                 // 0x5D
+uint8_t effect_visual;              // 0x5E
+uint8_t z_value;                    // 0x5F
+uint8_t special_frames;             // 0x60
 uint8_t* peep_positions;
 uint16_t num_peep_positions;
 }ride_vehicle_t;
