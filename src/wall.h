@@ -22,7 +22,7 @@ uint8_t effects;
 uint16_t build_fee;
 uint8_t scrolling;
 string_table_t name;
-group_info_t group_info;
+object_header_t object_header;
 image_list_t sprites;
 }wall_t;
 

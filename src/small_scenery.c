@@ -53,7 +53,7 @@ error=string_table_decode(&(scenery->name),chunk->data+pos,chunk->length-pos,&le
 pos+=length;
 
 //Load group info
-error=group_info_decode(&(scenery->group_info),chunk->data+pos,length-pos);
+error=object_header_decode(&(scenery->group_info),chunk->data+pos,length-pos);
 	if(error!=ERROR_NONE)
 	{
 	string_table_destroy(&(scenery->name));
@@ -82,6 +82,7 @@ error=image_list_decode(&(scenery->sprites),chunk->data+pos,chunk->length-pos);
 
 return ERROR_NONE;
 }
+
 error_t small_scenery_encode(small_scenery_t* scenery,uint8_t encoding,chunk_t* chunk)
 {
 //Compute length of encoded data
@@ -91,32 +92,32 @@ uint32_t sprites_length=image_list_get_encoded_length(&(scenery->sprites));
 uint32_t length=0x2C+name_table_length+animation_indices_length+sprites_length;
 
 //Allocate memory
-uint8_t* data=malloc_or_die(length);
-memset(data,0,length);
+chunk->encoding=encoding;
+chunk->data=malloc_or_die(length);
+chunk->length=length;
+memset(chunk->data,0,length);
 
 //Write header
-*((uint32_t*)(data+6))=scenery->flags;
-data[10]=scenery->height;
-data[11]=scenery->cursor_sel;
-*((int16_t*)(data+12))=scenery->build_fee;;
-*((int16_t*)(data+14))=scenery->remove_fee;
-*((int16_t*)(data+20))=scenery->anim_delay;
-*((int16_t*)(data+22))=scenery->anim_parameters;
-*((int16_t*)(data+24))=scenery->anim_frames;
+*((uint32_t*)(chunk->data+6))=scenery->flags;
+chunk->data[10]=scenery->height;
+chunk->data[11]=scenery->cursor_sel;
+*((int16_t*)(chunk->data+12))=scenery->build_fee;;
+*((int16_t*)(chunk->data+14))=scenery->remove_fee;
+*((int16_t*)(chunk->data+20))=scenery->anim_delay;
+*((int16_t*)(chunk->data+22))=scenery->anim_parameters;
+*((int16_t*)(chunk->data+24))=scenery->anim_frames;
 
 uint32_t pos=0x1C;
-string_table_encode(&(scenery->name),data+pos);
+string_table_encode(&(scenery->name),chunk->data+pos);
 pos+=name_table_length;
-group_info_encode(&(scenery->group_info),data+pos);
+object_header_encode(&(scenery->group_info),chunk->data+pos);
 pos+=16;
 	if(scenery->flags&SMALL_SCENERY_ANIMDATA)
 	{
-	animation_indices_encode(&(scenery->animation_indices),data+pos);
+	animation_indices_encode(&(scenery->animation_indices),chunk->data+pos);
 	pos+=animation_indices_length;
 	}
-image_list_encode(&(scenery->sprites),data+pos);
-chunk_encode(chunk,encoding,data,length);
-free(data);
+image_list_encode(&(scenery->sprites),chunk->data+pos);
 return ERROR_NONE;
 }
 

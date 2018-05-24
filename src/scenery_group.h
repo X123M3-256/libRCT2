@@ -4,19 +4,16 @@
 
 typedef struct
 {
-uint32_t flags;
-uint8_t name[8];
-uint32_t checksum;
-}scenery_group_member_t;
-
-typedef struct
-{
-scenery_group_member_t* members;
+object_header_t* members;
 uint32_t num_members;
 }scenery_group_member_info_t;
 
 typedef struct{
-//TODO fill in header
+uint8_t num_members;
+uint8_t unknown_1;
+uint8_t priority;
+uint8_t unknown_2;
+uint32_t entertainers;
 string_table_t name;
 scenery_group_member_info_t member_info;
 image_list_t sprites;

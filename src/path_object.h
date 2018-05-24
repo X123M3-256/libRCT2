@@ -22,7 +22,7 @@ uint8_t subtype;
 uint8_t cursor_sel;
 int16_t build_fee;
 string_table_t name;
-group_info_t group_info;
+object_header_t object_header;
 image_list_t sprites;
 }path_object_t;
 

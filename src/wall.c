@@ -23,7 +23,7 @@ error=string_table_decode(&(wall->name),chunk->data+pos,chunk->length-pos,&lengt
     if(error!=ERROR_NONE)return error;
 pos+=length;
 //Load group info
-error=group_info_decode(&(wall->group_info),chunk->data+pos,length-pos);
+error=object_header_decode(&(wall->object_header),chunk->data+pos,length-pos);
     if(error!=ERROR_NONE)
     {
     string_table_destroy(&(wall->name));
@@ -47,25 +47,25 @@ uint32_t sprites_length=image_list_get_encoded_length(&(wall->sprites));
 uint32_t length=0x1E +name_table_length+sprites_length;
 
 //Allocate memory
-uint8_t* data=malloc_or_die(length);
-memset(data,0,length);
+chunk->encoding=encoding;
+chunk->data=malloc_or_die(length);
+chunk->length=length;
+memset(chunk->data,0,length);
 
 //Write header
-data[6]=wall->cursor_sel;
-data[7]=wall->flags;
-data[8]=wall->clearance;
-data[9]=wall->effects;
-*((int16_t*)(data+10))=wall->build_fee;
-data[13]=wall->scrolling;
+chunk->data[6]=wall->cursor_sel;
+chunk->data[7]=wall->flags;
+chunk->data[8]=wall->clearance;
+chunk->data[9]=wall->effects;
+*((int16_t*)(chunk->data+10))=wall->build_fee;
+chunk->data[13]=wall->scrolling;
 
 uint32_t pos=0xE;
-string_table_encode(&(wall->name),data+pos);
+string_table_encode(&(wall->name),chunk->data+pos);
 pos+=name_table_length;
-group_info_encode(&(wall->group_info),data+pos);
+object_header_encode(&(wall->object_header),chunk->data+pos);
 pos+=16;
-image_list_encode(&(wall->sprites),data+pos);
-chunk_encode(chunk,encoding,data,length);
-free(data);
+image_list_encode(&(wall->sprites),chunk->data+pos);
 return ERROR_NONE;
 }
 

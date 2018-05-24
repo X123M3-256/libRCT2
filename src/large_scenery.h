@@ -40,7 +40,7 @@ uint8_t scroll;
 string_table_t name;
 uint8_t* unknown;
 large_scenery_tile_info_t tile_info;
-group_info_t group_info;
+object_header_t object_header;
 image_list_t sprites;
 }large_scenery_t;
 

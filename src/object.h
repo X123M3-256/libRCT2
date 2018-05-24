@@ -66,7 +66,8 @@ typedef struct
 {
 uint32_t flags;
 uint8_t name[8];
-}group_info_t;
+uint32_t checksum;
+}object_header_t;
 
 #include "chunk.h"
 
@@ -89,8 +90,8 @@ uint32_t string_table_get_encoded_length(string_table_t* table);
 void string_table_encode(string_table_t* table,uint8_t* data);
 void string_table_destroy(string_table_t* table);
 
-error_t group_info_decode(group_info_t* group_info,uint8_t* data,uint32_t data_length);
-void group_info_encode(group_info_t* table,uint8_t* data);
+error_t object_header_decode(object_header_t* object_header,uint8_t* data,uint32_t data_length);
+void object_header_encode(object_header_t* table,uint8_t* data);
 
 error_t image_list_decode(image_list_t* image_list,uint8_t* data,uint32_t data_length);
 uint32_t image_list_get_encoded_length(image_list_t* list);

@@ -53,7 +53,7 @@ int16_t build_fee;
 int16_t remove_fee;
 string_table_t name;
 animation_indices_t animation_indices;
-group_info_t group_info;
+object_header_t group_info;
 image_list_t sprites;
 }small_scenery_t;
 

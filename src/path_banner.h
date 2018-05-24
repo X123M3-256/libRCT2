@@ -13,7 +13,7 @@ uint8_t scroll;
 uint8_t flags;
 int16_t build_fee;
 string_table_t name;
-group_info_t group_info;
+object_header_t object_header;
 image_list_t sprites;
 }path_banner_t;
 

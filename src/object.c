@@ -167,18 +167,18 @@ void string_table_destroy(string_table_t* table)
 
 
 
-error_t group_info_decode(group_info_t* group_info,uint8_t* data,uint32_t data_length)
+error_t object_header_decode(object_header_t* object_header,uint8_t* data,uint32_t data_length)
 {
     if(data_length<16)return ERROR_PREMATURE_END_OF_CHUNK;
-group_info->flags=*((uint32_t*)data);
-memcpy(group_info->name,data+4,8);
-group_info->checksum=*((uint32_t*)(data+12));
+object_header->flags=*((uint32_t*)data);
+memcpy(object_header->name,data+4,8);
+object_header->checksum=*((uint32_t*)(data+12));
 return ERROR_NONE;
 }
-void group_info_encode(group_info_t* group_info,uint8_t* data)
+void object_header_encode(object_header_t* object_header,uint8_t* data)
 {
-*((uint32_t*)data)=group_info->flags;
-memcpy(data+4,group_info->name,8);
+*((uint32_t*)data)=object_header->flags;
+memcpy(data+4,object_header->name,8);
 *((uint32_t*)(data+12))=0;
 }
 

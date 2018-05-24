@@ -20,7 +20,7 @@ error=string_table_decode(&(path_banner->name),chunk->data+pos,chunk->length-pos
     if(error!=ERROR_NONE)return error;
 pos+=length;
 //Load group info
-error=group_info_decode(&(path_banner->group_info),chunk->data+pos,length-pos);
+error=object_header_decode(&(path_banner->object_header),chunk->data+pos,length-pos);
     if(error!=ERROR_NONE)
     {
     string_table_destroy(&(path_banner->name));
@@ -58,7 +58,7 @@ data[13]=path_banner->scrolling;
 uint32_t pos=0xE;
 string_table_encode(&(path_banner->name),data+pos);
 pos+=name_table_length;
-group_info_encode(&(path_banner->group_info),data+pos);
+object_header_encode(&(path_banner->object_header),data+pos);
 pos+=16;
 image_list_encode(&(path_banner->sprites),data+pos);
 chunk_encode(chunk,encoding,data,length);
