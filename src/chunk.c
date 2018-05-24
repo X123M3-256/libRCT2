@@ -65,7 +65,6 @@ uint32_t decoded_pos=0;
 return 0;
 }
 
-
 static uint32_t count_repeated_bytes(uint8_t* bytes,uint32_t length)
 {
     if(length==0)return 0;
@@ -159,9 +158,9 @@ error_t chunk_decode(chunk_t* chunk,uint8_t** data,uint32_t* length)
     return ERROR_INVALID_ENCODING;
     break;
     }
-FILE* test=fopen("DECOMPRESSED.DAT","wb");
-fwrite(*data,1,*length,test);
-fclose(test);
+//FILE* test=fopen("DECOMPRESSED.DAT","wb");
+//fwrite(*data,1,*length,test);
+//fclose(test);
 return ERROR_NONE;
 }
 void chunk_encode(chunk_t* chunk,uint8_t encoding,uint8_t *data,uint32_t length)
