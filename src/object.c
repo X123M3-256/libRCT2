@@ -172,6 +172,7 @@ error_t group_info_decode(group_info_t* group_info,uint8_t* data,uint32_t data_l
     if(data_length<16)return ERROR_PREMATURE_END_OF_CHUNK;
 group_info->flags=*((uint32_t*)data);
 memcpy(group_info->name,data+4,8);
+group_info->checksum=*((uint32_t*)(data+12));
 return ERROR_NONE;
 }
 void group_info_encode(group_info_t* group_info,uint8_t* data)
@@ -182,25 +183,25 @@ memcpy(data+4,group_info->name,8);
 }
 
 
-static error_t direct_bitmap_decode(rct2_image_t* image,uint8_t* data,uint32_t data_length)
+static error_t direct_bitmap_decode(image_t* image,uint8_t* data,uint32_t data_length)
 {
     if(image->width*image->height>data_length)return ERROR_PREMATURE_END_OF_CHUNK;
-memcpy(image->data,data,image->width*image->height);
+memcpy(image->pixels,data,image->width*image->height);
 return ERROR_NONE;
 }
-static uint32_t direct_bitmap_get_encoded_length(rct2_image_t* image)
+static uint32_t direct_bitmap_get_encoded_length(image_t* image)
 {
 return image->width*image->height;
 }
-static void direct_bitmap_encode(rct2_image_t* image,uint8_t* data,uint32_t* length)
+static void direct_bitmap_encode(image_t* image,uint8_t* data,uint32_t* length)
 {
-memcpy(data,image->data,image->width*image->height);
+memcpy(data,image->pixels,image->width*image->height);
 *length=image->width*image->height;
 }
 
-static error_t compressed_bitmap_decode(rct2_image_t* image,uint8_t* data,uint32_t data_length,int debug)
+static error_t compressed_bitmap_decode(image_t* image,uint8_t* data,uint32_t data_length,int debug)
 { 
-memset(image->data,0,image->width*image->height);
+memset(image->pixels,0,image->width*image->height);
 
 //Check there are enough bytes for row offset table
     if(data_length<2*image->height)return ERROR_PREMATURE_END_OF_CHUNK;
@@ -226,18 +227,18 @@ memset(image->data,0,image->width*image->height);
                 //Check there are enough bytes for the scanline contents
                     if(row_offset+length>data_length)return ERROR_PREMATURE_END_OF_CHUNK;
                 //Copy scanline contents to image
-                memcpy(image->data+row*image->width+x_displacement,data+row_offset,length);
+                memcpy(image->pixels+row*image->width+x_displacement,data+row_offset,length);
                 row_offset+=length;
 				}while (!last_one);
 			}
 return ERROR_NONE;
 }
-static uint32_t compressed_bitmap_get_encoded_length(rct2_image_t* image)
+static uint32_t compressed_bitmap_get_encoded_length(image_t* image)
 {
 uint32_t length=image->height*2;
             for(int i=0;i<image->height;i++)
             {           
-	    uint8_t* row=image->data+i*image->width;
+	    uint8_t* row=image->pixels+i*image->width;
             uint8_t x_pos=0;
                 while(x_pos<image->width&&row[x_pos]==0)x_pos++;
 
@@ -259,12 +260,12 @@ uint32_t length=image->height*2;
             }
 return length;
 }
-static void compressed_bitmap_encode(rct2_image_t* image,uint8_t* data,uint32_t* length,int debug)
+static void compressed_bitmap_encode(image_t* image,uint8_t* data,uint32_t* length,int debug)
 {
 uint32_t pos=image->height*2;
             for(int i=0;i<image->height;i++)
             {
-             uint8_t* row=image->data+i*image->width;
+             uint8_t* row=image->pixels+i*image->width;
             //Write row offset
             ((uint16_t*)data)[i]=pos;
             
@@ -304,7 +305,7 @@ image_list->num_images=*((uint32_t*)data);
 //Calculate offset of start of bitmap data
 uint32_t bitmap_base=8+(image_list->num_images*16);
 //Allocate images
-image_list->images=malloc_or_die(image_list->num_images*sizeof(rct2_image_t));
+image_list->images=malloc_or_die(image_list->num_images*sizeof(image_t));
 
 uint32_t pos=8;
     for(uint32_t i=0;i<image_list->num_images;i++)
@@ -313,13 +314,13 @@ uint32_t pos=8;
     //Compute offset of start of graphic data for this image
     uint32_t offset=bitmap_base+*((uint32_t*)(data+pos));
     //Load image header
-    rct2_image_t* image=image_list->images+i;
+    image_t* image=image_list->images+i;
     image->width=*((uint16_t*)(data+pos+4));
     image->height=*((uint16_t*)(data+pos+6));
     image->x_offset=*((uint16_t*)(data+pos+8));
     image->y_offset=*((uint16_t*)(data+pos+10));
     image->flags=*((uint16_t*)(data+pos+12));
-    image->data=malloc_or_die(image->width*image->height);
+    image->pixels=malloc_or_die(image->width*image->height);
     pos+=16;
 
     //Read pixel data
@@ -330,7 +331,7 @@ uint32_t pos=8;
     //If an error is encountered then free everything allocated
         if(error)
         {
-            for(uint32_t j=0;j<=i;j++)free(image_list->images[j].data);
+            for(uint32_t j=0;j<=i;j++)free(image_list->images[j].pixels);
         free(image_list->images);
         return error;
         }
@@ -356,7 +357,7 @@ uint32_t bitmap_pos=bitmap_base;
 uint32_t header_pos=8;
     for(uint32_t i=0;i<list->num_images;i++)
     {
-    rct2_image_t* image=list->images+i;
+    image_t* image=list->images+i;
 
     uint32_t bitmap_length;
         if(image->flags&0x4)compressed_bitmap_encode(image,data+bitmap_pos,&bitmap_length,i==786);
@@ -380,7 +381,7 @@ uint32_t header_pos=8;
 }
 void image_list_destroy(image_list_t* list)
 {
-    for(int i=0;i<list->num_images;i++)free(list->images[i].data);
+    for(int i=0;i<list->num_images;i++)free(list->images[i].pixels);
 free(list->images);
 }
 

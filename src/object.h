@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
-#include "image.h"
+#include <image.h>
 
 #define NUM_STRING_TABLES 3
 #define NUM_LANGUAGES 16
@@ -53,7 +53,7 @@ ERROR_INVALID_OBJECT,
 
 typedef struct //image list
 {
-rct2_image_t* images;
+image_t* images;
 uint32_t num_images;
 }image_list_t;
 
