@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.1)
 project (RCT2 C)
 
+find_package(PNG REQUIRED)
+include_directories(${PNG_INCLUDE_DIR})
 include_directories(../libImage/src)
 link_directories(../libImage)
 
@@ -21,4 +23,4 @@ target_link_libraries (RCT2 Image)
 
 add_executable(TestRCT2 src/main.c)
 set_property(TARGET TestRCT2 PROPERTY C_STANDARD 99)
-target_link_libraries (TestRCT2 RCT2)
+target_link_libraries (TestRCT2 RCT2 Image ${PNG_LIBRARY})
