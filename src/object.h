@@ -85,6 +85,7 @@ chunk_t chunk;
 
 void* malloc_or_die(size_t size);
 
+void string_table_init(string_table_t* table);
 error_t string_table_decode(string_table_t* string_table,uint8_t* data,uint32_t data_length,uint32_t* length);
 uint32_t string_table_get_encoded_length(string_table_t* table);
 void string_table_encode(string_table_t* table,uint8_t* data);

@@ -93,13 +93,17 @@ salt[10]=(target&0x00000800)>>11;
 }
 
 
+void string_table_init(string_table_t* table)
+{
+    for(int i=0;i<NUM_LANGUAGES;i++)table->strings[i]=NULL;
+}
 
 error_t string_table_decode(string_table_t* table,uint8_t* data,uint32_t data_length,uint32_t* length)
 {
     if(length==0)return ERROR_PREMATURE_END_OF_CHUNK;
 
 //Initialize all strings to NULL
-    for(int i=0;i<NUM_LANGUAGES;i++)table->strings[i]=NULL;
+    string_table_init(table);
 
 uint32_t pos=0;
     while(pos<data_length&&data[pos]!=0xFF)
